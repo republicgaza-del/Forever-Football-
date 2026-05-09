@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "Feedback": {
+      "title": "Prediction Feedback",
+      "description": "User feedback on the accuracy of the oracle's predictions.",
+      "type": "object",
+      "properties": {
+        "predictionId": { "type": "string" },
+        "fixtureHome": { "type": "string" },
+        "fixtureAway": { "type": "string" },
+        "predictedOutcome": { "type": "string", "enum": ["home", "draw", "away"] },
+        "actualOutcome": { "type": "string", "enum": ["home", "draw", "away"] },
+        "accuracyRating": { "type": "integer", "description": "1 to 5 rating" },
+        "comments": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["predictionId", "fixtureHome", "fixtureAway", "predictedOutcome", "actualOutcome", "accuracyRating", "timestamp", "userId"]
+    },
+    "SharedPrediction": {
+      "title": "Shared Prediction",
+      "description": "A preserved prediction result shared via URL.",
+      "type": "object",
+      "properties": {
+        "predictionData": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string" }
+      },
+      "required": ["predictionData", "createdAt", "createdBy"]
+    }
+  },
+  "firestore": {
+    "/prediction_feedback/{feedbackId}": {
+      "schema": "Feedback",
+      "description": "Collection of feedback entries for predictions."
+    },
+    "/shared_predictions/{shareId}": {
+      "schema": "SharedPrediction",
+      "description": "Collection of shared snapshots of predictions."
+    }
+  }
+}
