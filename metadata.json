@@ -1,6 +1,6 @@
 {
-  "name": "The Dual-Brain Oracle",
-  "description": "A post-human football betting oracle combining qualitative expertise (QPE) with statistical machine learning (XSE) for unbiased, explainable predictions.",
+  "name": "FOREVER FOOTBALL",
+  "description": "The peak of football intelligence. A high-fidelity oracle combining tactical mastery, player psychology, and integrity auditing for the beautiful game.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

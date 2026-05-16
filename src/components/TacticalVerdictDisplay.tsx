@@ -14,7 +14,7 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
 
   const riskColors = {
     SURGICAL: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-    SPECULATIVE: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30',
+    SPECULATIVE: 'text-football-gold bg-football-gold/10 border-football-gold/30',
     VOLATILE: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
     CONTRARIAN: 'text-rose-400 bg-rose-500/10 border-rose-500/30'
   };
@@ -22,15 +22,15 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
   return (
     <div className="relative group">
       {/* Outer Glow Effect */}
-      <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-football-green/20 to-champion-gold/20 rounded-2xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
       
       <div className="relative oracle-glass rounded-2xl border-white/10 overflow-hidden">
         {/* Top Segment: Status Trace */}
         <div className="px-6 py-3 border-b border-white/5 bg-white/20 flex justify-between items-center">
             <div className="flex items-center gap-3">
-                <Terminal className="w-3 h-3 text-violet-400" />
-                <span className="text-[10px] font-mono text-violet-400 uppercase tracking-widest font-bold">
-                    Tactical Execution Stream: {verdict.verdict_code}
+                <Terminal className="w-3 h-3 text-football-green" />
+                <span className="text-[10px] font-mono text-football-green uppercase tracking-widest font-black italic">
+                    Live Execution Matrix: {verdict.verdict_code}
                 </span>
             </div>
             <div className="flex items-center gap-4">
@@ -83,8 +83,8 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
             <div className="md:col-span-5 flex flex-col justify-center border-l border-white/5 md:pl-8 space-y-4">
                 <div>
                     <div className="flex items-center gap-2 mb-2">
-                        <Zap className="w-3 h-3 text-violet-400" />
-                        <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Execution Logic</span>
+                        <Zap className="w-3 h-3 text-football-green" />
+                        <span className="text-[10px] font-mono text-gray-400 uppercase tracking-widest italic font-bold">Analytic Synthesis</span>
                     </div>
                     <p className="text-sm text-gray-200 font-medium leading-relaxed italic">
                         "{verdict.execution_logic}"
@@ -96,7 +96,7 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
             <div className="md:col-span-3 flex flex-col justify-center border-l border-white/5 md:pl-8">
                 <div className="p-4 bg-white/5 rounded-xl border border-white/5 space-y-2">
                     <div className="flex items-center gap-2">
-                        <Crosshair className="w-3 h-3 text-cyan-400" />
+                        <Crosshair className="w-3 h-3 text-football-gold" />
                         <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Primary Pivot</span>
                     </div>
                     <p className="text-[10px] font-bold text-white uppercase leading-tight">
@@ -106,7 +106,7 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
                         <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: '85%' }}
-                            className="h-full bg-cyan-500 shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+                            className="h-full bg-football-gold shadow-[0_0_8px_rgba(212,175,55,0.5)]"
                         />
                     </div>
                 </div>
@@ -144,7 +144,7 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
                     </div>
                 </div>
 
-                <div className="pl-4 border-l border-violet-500/30 text-[11px] text-gray-400 space-y-1">
+                <div className="pl-4 border-l border-football-green/30 text-[11px] text-gray-400 space-y-1 font-mono">
                     {prediction.decision_trace.logical_steps.slice(0, 3).map((step, i) => (
                     <div key={i}>• {step}</div>
                     ))}
@@ -168,7 +168,7 @@ export const TacticalVerdictDisplay = ({ prediction }: TacticalVerdictDisplayPro
         </div>
 
         {/* Bottom Deco */}
-        <div className="h-1 bg-gradient-to-r from-violet-600 via-cyan-500 to-emerald-500 opacity-30" />
+        <div className="h-1 bg-gradient-to-r from-football-green via-champion-gold to-emerald-500 opacity-40 shadow-[0_0_10px_rgba(34,197,94,0.3)]" />
       </div>
     </div>
   );

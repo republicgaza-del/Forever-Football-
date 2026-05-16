@@ -81,15 +81,15 @@ export const RadarTab: React.FC<RadarTabProps> = ({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h2 className="text-3xl font-black italic text-white uppercase tracking-tighter flex items-center gap-3">
-            <Radar className="w-8 h-8 text-violet-500 animate-pulse" />
-            Surveillance Grid Radar
+            <Radar className="w-8 h-8 text-football-green animate-pulse" />
+            Live Search Matrix
           </h2>
-          <p className="text-[10px] font-mono text-gray-500 uppercase mt-1">Live Feed Optimization • Global Monitoring</p>
+          <p className="text-[10px] font-mono text-gray-500 uppercase mt-1 italic">Tracking 24/7 • Real-Time Broadcast Sync</p>
         </div>
         <button 
           onClick={onScan} 
           disabled={scanning}
-          className="px-8 py-3 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-black text-[10px] tracking-widest transition-all shadow-lg shadow-violet-600/20 disabled:opacity-50 flex items-center gap-2"
+          className="px-8 py-3 bg-football-green hover:bg-emerald-500 text-black rounded-xl font-black text-[10px] tracking-widest transition-all shadow-[0_0_20px_rgba(34,197,94,0.3)] disabled:opacity-50 flex items-center gap-2"
         >
           {scanning ? <Activity className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
           FORCE RE-SCAN
@@ -97,10 +97,10 @@ export const RadarTab: React.FC<RadarTabProps> = ({
       </div>
 
       {/* Grid Filters */}
-      <div className="flex flex-wrap items-center gap-6 p-6 oracle-glass border-violet-500/10 rounded-3xl">
+      <div className="flex flex-wrap items-center gap-6 p-6 oracle-glass border-football-green/10 rounded-3xl">
         <div className="flex items-center gap-2 pr-6 border-r border-white/5">
-          <Filter className="w-5 h-5 text-violet-400" />
-          <span className="text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest">Surveillance Filters</span>
+          <Filter className="w-5 h-5 text-football-green" />
+          <span className="text-[10px] font-mono font-black text-gray-500 uppercase tracking-widest italic">Matrix Filters</span>
         </div>
         
         <div className="flex items-center gap-4">
@@ -111,9 +111,9 @@ export const RadarTab: React.FC<RadarTabProps> = ({
                 key={s}
                 onClick={() => setFilterState({ ...filterState, significance: s })}
                 className={cn(
-                  "px-4 py-1.5 rounded-lg text-[10px] font-bold border transition-all uppercase tracking-widest",
+                  "px-4 py-1.5 rounded-lg text-[10px] font-black border transition-all uppercase tracking-widest italic",
                   filterState.significance === s 
-                    ? "bg-violet-500/20 border-violet-500 text-white" 
+                    ? "bg-football-green/20 border-football-green text-white" 
                     : "bg-black/40 border-gray-800 text-gray-500 hover:border-gray-600"
                 )}
               >
@@ -129,7 +129,7 @@ export const RadarTab: React.FC<RadarTabProps> = ({
             type="range" min="0" max="90" step="10"
             value={filterState.minVolatility}
             onChange={(e) => setFilterState({ ...filterState, minVolatility: parseInt(e.target.value) })}
-            className="w-32 accent-violet-500"
+            className="w-32 accent-football-green"
           />
         </div>
 
@@ -167,7 +167,7 @@ export const RadarTab: React.FC<RadarTabProps> = ({
                 onClick={() => onSelectFixture(fix)}
                 className={cn(
                   "w-full oracle-glass p-8 rounded-3xl border transition-all text-left relative overflow-hidden h-full flex flex-col justify-between",
-                  isSelected ? "border-emerald-500/50 bg-emerald-500/5" : "border-violet-500/10 hover:border-violet-500/40"
+                  isSelected ? "border-emerald-500/50 bg-emerald-500/5" : "border-football-green/10 hover:border-football-green/40"
                 )}
               >
                 <div className="flex justify-between items-start mb-4">
@@ -202,12 +202,12 @@ export const RadarTab: React.FC<RadarTabProps> = ({
                 <div className="space-y-4 mb-8 mt-4">
                   <div className="flex items-center gap-3">
                     <img src={`https://tse2.mm.bing.net/th?q=${encodeURIComponent(fix.home + " football crest transparent")}&w=64&h=64&c=7&rs=1`} alt={fix.home} className="w-8 h-8 object-contain drop-shadow-md" />
-                    <div className="text-lg font-black text-white italic group-hover:text-violet-400 transition-colors leading-none uppercase">{fix.home}</div>
+                    <div className="text-lg font-black text-white italic group-hover:text-football-green transition-colors leading-none uppercase">{fix.home}</div>
                   </div>
                   <div className="text-[9px] text-gray-700 font-mono italic uppercase tracking-tighter ml-11">vs</div>
                   <div className="flex items-center gap-3">
                     <img src={`https://tse2.mm.bing.net/th?q=${encodeURIComponent(fix.away + " football crest transparent")}&w=64&h=64&c=7&rs=1`} alt={fix.away} className="w-8 h-8 object-contain drop-shadow-md" />
-                    <div className="text-lg font-black text-white italic group-hover:text-violet-400 transition-colors leading-none uppercase">{fix.away}</div>
+                    <div className="text-lg font-black text-white italic group-hover:text-football-green transition-colors leading-none uppercase">{fix.away}</div>
                   </div>
                 </div>
 
@@ -224,12 +224,12 @@ export const RadarTab: React.FC<RadarTabProps> = ({
                          <motion.div 
                            initial={{ width: 0 }}
                            animate={{ width: `${fix.volatility_score}%` }}
-                           className="h-full bg-cyan-500/50 shadow-[0_0_8px_rgba(34,211,238,0.3)]" 
+                           className="h-full bg-football-green/50 shadow-[0_0_8px_rgba(34,197,94,0.3)]" 
                          />
                        </div>
                        <span className="text-[9px] font-mono text-gray-600 tabular-nums">{fix.volatility_score}%</span>
                      </div>
-                     <ChevronRight className="w-4 h-4 text-gray-800 group-hover:text-violet-500 transition-all translate-x-0 group-hover:translate-x-1" />
+                     <ChevronRight className="w-4 h-4 text-gray-800 group-hover:text-football-green transition-all translate-x-0 group-hover:translate-x-1" />
                    </div>
                 </div>
               </button>
@@ -258,11 +258,11 @@ export const RadarTab: React.FC<RadarTabProps> = ({
           <button
             onClick={onLoadMore}
             disabled={scanning}
-            className="px-16 py-5 bg-black border border-white/10 hover:border-violet-500/50 rounded-2xl text-xs font-black text-gray-400 hover:text-white uppercase tracking-[0.3em] transition-all group flex items-center gap-4 shadow-2xl relative overflow-hidden"
+            className="px-16 py-5 bg-black border border-white/10 hover:border-football-green/50 rounded-2xl text-xs font-black text-gray-400 hover:text-white uppercase tracking-[0.3em] transition-all group flex items-center gap-4 shadow-2xl relative overflow-hidden italic"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-            <Zap className={cn("w-5 h-5 text-violet-500", scanning && "animate-pulse")} />
-            {scanning ? "Calibrating Dynamic Range..." : "Extend Search Horizon"}
+            <Zap className={cn("w-5 h-5 text-football-green", scanning && "animate-pulse")} />
+            {scanning ? "Calibrating Neural Range..." : "Extend Search Horizon"}
           </button>
         </div>
       )}

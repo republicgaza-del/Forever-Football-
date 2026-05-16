@@ -33,9 +33,11 @@ import { OracleResults } from './components/OracleResults';
 import { RadarTab } from './components/RadarTab';
 import { ComparisonGrid } from './components/ComparisonGrid';
 import { ScrapperStatus } from './components/ScrapperStatus';
+import { ThreatMonitor } from './components/ThreatMonitor';
+import { LiveWatchWidget } from './components/LiveWatchWidget';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'oracle' | 'radar' | 'tactical' | 'history'>('oracle');
+  const [activeTab, setActiveTab] = useState<'oracle' | 'radar' | 'tactical' | 'history' | 'threats'>('oracle');
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [weeklyFixtures, setWeeklyFixtures] = useState<any[]>([]);
@@ -90,13 +92,16 @@ export default function App() {
     rating: 5,
     comments: '',
     submitting: false,
-    submitted: false
+    submitted: false,
+    error: null as string | null
   });
   const [sharing, setSharing] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isExtracting, setIsExtracting] = useState(false);
+  const [lineupNotes, setLineupNotes] = useState('');
+  const [marketNotes, setMarketNotes] = useState('');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -206,7 +211,10 @@ export default function App() {
     setError(null);
     setFeedbackState(prev => ({ ...prev, submitted: false, comments: '' }));
     try {
-      const result = await analyzeFixture(h, a, l);
+      const result = await analyzeFixture(h, a, l, { 
+        lineups: lineupNotes || undefined, 
+        market: marketNotes || undefined 
+      });
       setPrediction(result);
     } catch (e: any) {
       handleError(e, "Inference nodes failed to resolve. The Oracle is currently offline.");
@@ -322,7 +330,7 @@ export default function App() {
 
   const submitFeedback = async () => {
     if (!prediction || !user) return;
-    setFeedbackState(prev => ({ ...prev, submitting: true }));
+    setFeedbackState(prev => ({ ...prev, submitting: true, error: null }));
     try {
       await addDoc(collection(db, 'prediction_feedback'), {
         predictionId: `${prediction.fixture.home}-${prediction.fixture.away}-${Date.now()}`,
@@ -335,11 +343,21 @@ export default function App() {
         timestamp: serverTimestamp(),
         userId: user.uid
       });
-      setFeedbackState(prev => ({ ...prev, submitted: true, submitting: false }));
+      setFeedbackState(prev => ({ ...prev, submitted: true, submitting: false, error: null }));
       fetchHistory(user.uid);
-    } catch (e) {
-      handleFirestoreError(e, OperationType.WRITE, 'prediction_feedback');
-      setFeedbackState(prev => ({ ...prev, submitting: false }));
+    } catch (e: any) {
+      try {
+        handleFirestoreError(e, OperationType.WRITE, 'prediction_feedback');
+      } catch (firestoreErr: any) {
+        let errorMessage = "Access denied or network failure.";
+        try {
+          const details = JSON.parse(firestoreErr.message);
+          errorMessage = details.error;
+        } catch {
+          errorMessage = firestoreErr.message;
+        }
+        setFeedbackState(prev => ({ ...prev, submitting: false, error: errorMessage }));
+      }
     }
   };
 
@@ -352,32 +370,33 @@ export default function App() {
   }, [weeklyFixtures, filterState]);
 
   return (
-    <div className="flex h-screen bg-[#020205] text-white overflow-hidden font-sans selection:bg-violet-500/30">
+    <div className="flex h-screen bg-[#020305] text-white overflow-hidden font-sans selection:bg-football-green/30">
       {/* Decisive Sidebar Navigation */}
       <nav className="w-20 md:w-24 bg-black border-r border-white/5 flex flex-col items-center py-8 gap-10 relative z-50">
-        <div className="p-3 bg-gradient-to-br from-violet-600 to-indigo-600 rounded-2xl shadow-lg shadow-violet-500/20">
+        <div className="p-3 bg-gradient-to-br from-football-green to-emerald-600 rounded-2xl shadow-lg shadow-football-green/20 border border-white/10">
           <Shield className="w-7 h-7 text-white" />
         </div>
 
         <div className="flex flex-col gap-6 flex-1 w-full px-2">
           {[
-            { id: 'oracle', icon: LayoutDashboard, label: 'Oracle' },
-            { id: 'radar', icon: Radar, label: 'Radar' },
-            { id: 'tactical', icon: Sword, label: 'Tactics' },
-            { id: 'history', icon: HistoryIcon, label: 'Logs' }
+            { id: 'oracle', icon: LayoutDashboard, label: 'PREDICT' },
+            { id: 'radar', icon: Radar, label: 'RADAR' },
+            { id: 'threats', icon: ShieldAlert, label: 'INTEGRITY' },
+            { id: 'tactical', icon: Sword, label: 'TACTICS' },
+            { id: 'history', icon: HistoryIcon, label: 'HISTORY' }
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={cn(
                 "group relative w-full aspect-square flex flex-col items-center justify-center rounded-xl transition-all",
-                activeTab === tab.id ? "bg-violet-500/10 text-violet-400" : "text-gray-600 hover:text-gray-300 hover:bg-white/5"
+                activeTab === tab.id ? "bg-football-green/10 text-football-green" : "text-gray-600 hover:text-gray-300 hover:bg-white/5"
               )}
             >
               <tab.icon className={cn("w-5 h-5 mb-1", activeTab === tab.id && "animate-pulse")} />
-              <span className="text-[8px] font-mono font-bold uppercase tracking-tighter">{tab.label}</span>
+              <span className="text-[8px] font-mono font-black uppercase tracking-tighter">{tab.label}</span>
               {activeTab === tab.id && (
-                <motion.div layoutId="activeTabIndicator" className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-violet-500 rounded-l-full shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
+                <motion.div layoutId="activeTabIndicator" className="absolute right-0 top-1/4 bottom-1/4 w-1 bg-football-green rounded-l-full shadow-[0_0_12px_rgba(34,197,94,0.6)]" />
               )}
             </button>
           ))}
@@ -395,7 +414,7 @@ export default function App() {
           ) : (
             <button 
               onClick={signIn}
-              className="p-3 bg-violet-600 text-white rounded-xl shadow-lg shadow-violet-500/20 hover:scale-105 transition-all"
+              className="p-3 bg-football-green text-black font-black rounded-xl shadow-lg shadow-football-green/20 hover:scale-105 transition-all"
               title="Auth Access"
             >
               <User className="w-5 h-5" />
@@ -406,28 +425,30 @@ export default function App() {
 
       {/* Main Command Deck */}
       <main className="flex-1 overflow-y-auto relative custom-scrollbar flex flex-col">
-        <header className="sticky top-0 z-40 bg-[#020205]/80 backdrop-blur-md px-8 py-4 border-b border-white/5 flex justify-between items-center shrink-0">
+        <header className="sticky top-0 z-40 bg-[#020305]/80 backdrop-blur-md px-8 py-4 border-b border-white/5 flex justify-between items-center shrink-0">
           <div className="flex flex-col">
-            <h1 className="text-sm font-black tracking-[0.2em] text-white uppercase italic">
-              {activeTab === 'oracle' && 'Dual-Brain Inference Console'}
-              {activeTab === 'radar' && 'Surveillance Grid Radar'}
-              {activeTab === 'tactical' && 'Combat Comparison Module'}
-              {activeTab === 'history' && 'Predictive Audit Logs'}
+            <h1 className="text-base font-black tracking-tighter text-white uppercase italic flex items-center gap-3">
+              <span className="text-football-green">FOREVER</span>
+              <span className="text-white/40">FOOTBALL</span>
+              <span className="h-4 w-px bg-white/10 mx-1" />
+              <span className="text-[10px] font-mono tracking-[0.3em] text-gray-500 not-italic">
+                {activeTab === 'oracle' && 'PREDICTION CONSOLE'}
+                {activeTab === 'radar' && 'SURVEILLANCE GRID'}
+                {activeTab === 'threats' && 'INTEGRITY MONITOR'}
+                {activeTab === 'tactical' && 'TACTICAL ANALYSIS'}
+                {activeTab === 'history' && 'HISTORICAL LOGS'}
+              </span>
             </h1>
-            <div className="flex items-center gap-2 mt-0.5">
-               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-               <span className="text-[9px] font-mono text-gray-500 uppercase tracking-widest">Global Status: Optimal</span>
-            </div>
           </div>
           
           <div className="flex items-center gap-6">
             <div className="hidden md:flex flex-col items-end">
-              <span className="text-[10px] font-mono text-gray-600 uppercase">Operator ID</span>
-              <span className="text-[11px] font-bold text-violet-400">{user?.displayName || 'GUEST_USER_822'}</span>
+              <span className="text-[10px] font-mono text-gray-600 uppercase">ACCESS CODE</span>
+              <span className="text-[11px] font-black text-football-green">{user?.displayName?.split(' ')[0] || 'GUEST_07'}</span>
             </div>
-            <div className="flex items-center gap-2 text-xs font-mono text-gray-500 px-4 border-l border-white/10">
-               <Activity className="w-3 h-3" />
-               <span>Latency: 42ms</span>
+            <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400 px-4 border-l border-white/10 uppercase tracking-widest">
+               <Activity className="w-3 h-3 text-football-green animate-pulse" />
+               <span>SYSTEM STATUS: OPTIMAL</span>
             </div>
           </div>
         </header>
@@ -458,49 +479,76 @@ export default function App() {
             {activeTab === 'oracle' && (
               <motion.div key="oracle" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-12">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-                  <div className="lg:col-span-12 oracle-glass p-8 rounded-3xl space-y-8">
+                  <div className="lg:col-span-12 oracle-glass p-8 rounded-3xl space-y-8 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-football-green/0 via-football-green to-football-green/0 opacity-50" />
                     <div className="space-y-4">
-                        <h3 className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.3em] italic">Global Intelligence Search</h3>
+                        <h3 className="text-[10px] font-black text-football-green uppercase tracking-[0.3em] italic">Pro-Grade Intelligence Search</h3>
                         <form onSubmit={handleGlobalSearch} className="relative group">
                             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                                <Search className="w-5 h-5 text-gray-600 group-focus-within:text-violet-500 transition-colors" />
+                                <Search className="w-5 h-5 text-gray-600 group-focus-within:text-football-green transition-colors" />
                             </div>
                             <input 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Enter fixture search (e.g. Liverpool vs Chelsea in Premier League)"
-                                className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-32 py-5 text-base focus:border-violet-500/50 outline-none transition-all placeholder:text-gray-700"
+                                placeholder="E.g. Man City vs Real Madrid, Champions League"
+                                className="w-full bg-black/40 border border-white/5 rounded-2xl pl-12 pr-40 py-5 text-base focus:border-football-green/50 outline-none transition-all placeholder:text-gray-700 font-bold tracking-tight"
                             />
                             <button 
                                 type="submit"
                                 disabled={isExtracting || !searchQuery.trim()}
-                                className="absolute right-2 top-2 bottom-2 px-6 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                className="absolute right-2 top-2 bottom-2 px-8 bg-football-green hover:bg-emerald-500 disabled:opacity-50 rounded-xl text-[10px] font-black uppercase text-black tracking-widest transition-all"
                             >
-                                {isExtracting ? 'Extracting...' : 'Search & Predict'}
+                                {isExtracting ? 'ANALYZING...' : 'RUN FORECAST'}
                             </button>
                         </form>
-                        <div className="flex gap-4">
-                            <p className="text-[9px] text-gray-600 font-mono italic">Parser hint: "Team A vs Team B League Name"</p>
-                        </div>
                     </div>
 
                     <div className="pt-8 border-t border-white/5">
-                        <h3 className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.3em] italic mb-6">Manual Calibration Units</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <h3 className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.3em] italic mb-6">Manual Tactical Calibration</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                           <div className="space-y-2">
-                            <label className="text-[9px] font-mono text-gray-600 uppercase ml-2">Home Unit</label>
-                            <input value={searchState.home} onChange={e => setSearchState({...searchState, home: e.target.value})} className="w-full bg-black/60 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-violet-500/50 outline-none transition-all font-bold tracking-tight" />
+                            <label className="text-[9px] font-mono text-gray-600 uppercase ml-2">Home Squad</label>
+                            <input value={searchState.home} onChange={e => setSearchState({...searchState, home: e.target.value})} className="w-full bg-black/60 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-football-green/50 outline-none transition-all font-bold tracking-tight" />
                           </div>
                           <div className="space-y-2">
-                            <label className="text-[9px] font-mono text-gray-600 uppercase ml-2">Away Unit</label>
-                            <input value={searchState.away} onChange={e => setSearchState({...searchState, away: e.target.value})} className="w-full bg-black/60 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-violet-500/50 outline-none transition-all font-bold tracking-tight" />
+                            <label className="text-[9px] font-mono text-gray-600 uppercase ml-2">Away Squad</label>
+                            <input value={searchState.away} onChange={e => setSearchState({...searchState, away: e.target.value})} className="w-full bg-black/60 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-football-green/50 outline-none transition-all font-bold tracking-tight" />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[9px] font-mono text-gray-600 uppercase ml-2">Competition</label>
+                             <input value={searchState.league} onChange={e => setSearchState({...searchState, league: e.target.value})} className="w-full bg-black/60 border border-white/5 rounded-xl px-4 py-3 text-sm focus:border-football-green/50 outline-none transition-all font-bold tracking-tight" />
                           </div>
                           <div className="flex items-end">
-                            <button onClick={() => runOracle()} disabled={loading} className="w-full py-3.5 bg-violet-600 hover:bg-violet-500 active:scale-95 disabled:opacity-50 rounded-xl text-xs font-black tracking-[0.2em] uppercase transition-all shadow-xl shadow-violet-600/20 flex items-center justify-center gap-3">
+                            <button onClick={() => runOracle()} disabled={loading} className="w-full py-3.5 bg-football-green text-black hover:bg-emerald-500 active:scale-95 disabled:opacity-50 rounded-xl text-xs font-black tracking-[0.2em] uppercase transition-all shadow-xl shadow-football-green/20 flex items-center justify-center gap-3">
                               {loading ? <Activity className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
-                              {loading ? 'Processing...' : 'Run Oracle'}
+                              {loading ? 'CALCULATING...' : 'EXECUTE PREDICTION'}
                             </button>
                           </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4 pt-4 border-t border-white/5">
+                           <div className="space-y-2">
+                              <label className="text-[9px] font-mono text-gray-600 uppercase ml-2 flex items-center gap-2">
+                                <User className="w-3 h-3 text-football-green" /> Squad Details (Injuries/Lineup Notes)
+                              </label>
+                              <textarea 
+                                value={lineupNotes} 
+                                onChange={e => setLineupNotes(e.target.value)} 
+                                placeholder="Enter specific player absences or confirmed starting XI notes..."
+                                className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-[11px] font-mono focus:border-football-green/50 outline-none transition-all resize-none h-20"
+                              />
+                           </div>
+                           <div className="space-y-2">
+                              <label className="text-[9px] font-mono text-gray-600 uppercase ml-2 flex items-center gap-2">
+                                <Activity className="w-3 h-3 text-football-green" /> Market Movement Insights
+                              </label>
+                              <textarea 
+                                value={marketNotes} 
+                                onChange={e => setMarketNotes(e.target.value)} 
+                                placeholder="Steam moves, unusual volumes, or reverse line movement observed..."
+                                className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-[11px] font-mono focus:border-football-green/50 outline-none transition-all resize-none h-20"
+                              />
+                           </div>
                         </div>
                     </div>
                   </div>
@@ -533,6 +581,12 @@ export default function App() {
               />
             )}
 
+            {activeTab === 'threats' && (
+               <motion.div key="threats" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <ThreatMonitor />
+               </motion.div>
+            )}
+
             {activeTab === 'tactical' && (
               <ComparisonGrid data={comparisonData} isFetching={isFetchingComparison} onBack={() => setActiveTab('radar')} />
             )}
@@ -541,17 +595,17 @@ export default function App() {
               <motion.div key="history" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
                 <div className="flex justify-between items-center">
                    <h2 className="text-2xl font-black italic text-white uppercase tracking-tighter">System Audit History</h2>
-                   {user && <button onClick={() => fetchHistory(user.uid)} className="p-2 hover:bg-white/5 rounded-lg transition-all"><Activity className="w-4 h-4 text-violet-400" /></button>}
+                   {user && <button onClick={() => fetchHistory(user.uid)} className="p-2 hover:bg-white/5 rounded-lg transition-all"><Activity className="w-4 h-4 text-football-green" /></button>}
                 </div>
                 
                 {!user ? (
-                   <div className="py-32 oracle-glass rounded-3xl flex flex-col items-center gap-6 text-center border-violet-500/10">
+                   <div className="py-32 oracle-glass rounded-3xl flex flex-col items-center gap-6 text-center border-football-green/10">
                       <Shield className="w-12 h-12 text-gray-800" />
                       <div className="space-y-2">
                         <p className="text-sm font-bold text-white uppercase">Restricted Access</p>
                         <p className="text-xs text-gray-500 font-mono">Authentication required to access predictive audit logs.</p>
                       </div>
-                      <button onClick={signIn} className="px-8 py-3 bg-violet-600 rounded-xl text-[10px] font-bold tracking-widest uppercase">Sign In</button>
+                      <button onClick={signIn} className="px-8 py-3 bg-football-green text-black hover:bg-emerald-500 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all">SIGN IN</button>
                    </div>
                 ) : history.length === 0 ? (
                    <div className="py-32 text-center opacity-20">
@@ -577,7 +631,7 @@ export default function App() {
                                     <div className="text-xs font-bold text-white italic uppercase">{log.fixtureHome} vs {log.fixtureAway}</div>
                                 </td>
                                 <td className="p-4 whitespace-nowrap">
-                                    <span className="text-[10px] font-black text-violet-400 uppercase bg-violet-400/10 px-2.5 py-1 rounded-lg border border-violet-400/20">{log.predictedOutcome}</span>
+                                    <span className="text-[10px] font-black text-football-green uppercase bg-football-green/10 px-2.5 py-1 rounded-lg border border-football-green/20">{log.predictedOutcome}</span>
                                 </td>
                                 <td className="p-4 whitespace-nowrap">
                                     <div className="flex gap-1">
@@ -611,32 +665,44 @@ export default function App() {
           </AnimatePresence>
         </div>
 
-        <footer className="p-8 border-t border-white/5 shrink-0 bg-black/40">
-           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex gap-8">
+        <footer className="p-12 border-t border-white/5 shrink-0 bg-black/80 relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+              <Shield className="w-64 h-64 text-football-green" />
+           </div>
+           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10 relative z-10">
+              <div className="flex gap-12">
                  <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-gray-600 uppercase">Engine Status</span>
-                    <span className="text-[10px] font-bold text-emerald-500 uppercase flex items-center gap-2">Operational <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /></span>
+                    <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Live Engine</span>
+                    <span className="text-[10px] font-black text-football-green uppercase flex items-center gap-2">ACTIVE <div className="w-1.5 h-1.5 rounded-full bg-football-green animate-pulse" /></span>
                  </div>
                  <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-gray-600 uppercase">Core Load</span>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase">12.4%</span>
+                    <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">System Load</span>
+                    <span className="text-[10px] font-black text-white uppercase">4.21 TFLOPS</span>
                  </div>
                  <div className="flex flex-col">
-                    <span className="text-[8px] font-mono text-gray-600 uppercase">Model Epoch</span>
-                    <span className="text-[10px] font-bold text-violet-400 uppercase font-mono">v5.2.REL</span>
+                    <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1">Version Control</span>
+                    <span className="text-[10px] font-black text-football-gold uppercase font-mono">FOREVER_FF_v7.2</span>
                  </div>
               </div>
               
-              <div className="text-center md:text-right max-w-md">
-                 <p className="text-[9px] text-gray-700 font-mono leading-relaxed">
-                    The Dual-Brain Oracle is a statistical inference tool. Betting involves systemic risk. 
-                    Bankroll management according to Kelly Criterion limits is strictly recommended. 
-                    System outputs are non-binding.
+              <div className="text-center md:text-right max-w-lg">
+                 <p className="text-[10px] text-gray-500 font-mono leading-relaxed border-l-2 border-football-green/20 pl-4 py-1 italic">
+                    FOREVER FOOTBALL is an elite predictive analytics engine. Sports betting involves inherent risk. 
+                    Manage your capital with discipline. Predictions are based on multi-node inference and statistical 
+                    probability models. Play responsibly.
                  </p>
               </div>
            </div>
         </footer>
+        <LiveWatchWidget onAudit={(match) => {
+          setSearchState({
+            home: match.home_name,
+            away: match.away_name,
+            league: match.competition_name || 'Global'
+          });
+          setActiveTab('oracle');
+          runOracle(match.home_name, match.away_name, match.competition_name);
+        }} />
       </main>
     </div>
   );

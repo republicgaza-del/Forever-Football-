@@ -40,10 +40,10 @@ export const ComparisonGrid: React.FC<ComparisonGridProps> = ({
           <motion.div 
             animate={{ rotate: 360 }}
             transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-            className="w-24 h-24 rounded-full border-t-2 border-r-2 border-violet-500/30"
+            className="w-24 h-24 rounded-full border-t-2 border-r-2 border-football-green/30"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-            <Sword className="w-8 h-8 text-violet-500 animate-pulse" />
+            <Sword className="w-8 h-8 text-football-green animate-pulse" />
           </div>
         </div>
         <div className="text-center">
@@ -68,16 +68,16 @@ export const ComparisonGrid: React.FC<ComparisonGridProps> = ({
           <h2 className="text-4xl font-black italic tracking-tighter text-white uppercase">Tactical Deployment Matrix</h2>
           <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest italic">Grid Size: {data.length} Nodes Operational</p>
         </div>
-        <button onClick={onBack} className="text-[10px] font-mono text-violet-400 hover:text-violet-300 uppercase tracking-widest flex items-center gap-2 px-4 py-2 bg-violet-500/5 rounded-lg border border-violet-500/10 transition-all">
+        <button onClick={onBack} className="text-[10px] font-mono text-football-green hover:text-emerald-400 uppercase tracking-widest flex items-center gap-2 px-4 py-2 bg-football-green/5 rounded-lg border border-football-green/10 transition-all font-black">
           <Zap className="w-3 h-3" /> Reconfigure Selection
         </button>
       </div>
 
       {/* Aggregate Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="oracle-glass p-6 rounded-2xl flex flex-col justify-between h-32 border-violet-500/20">
-          <span className="text-[10px] font-mono text-gray-500 uppercase">Portfolio Edge Alpha</span>
-          <div className="text-3xl font-black text-violet-400">+{formatPercent(avgEdge)}</div>
+        <div className="oracle-glass p-6 rounded-2xl flex flex-col justify-between h-32 border-football-green/20">
+          <span className="text-[10px] font-mono text-gray-500 uppercase">Portfolio Alpha Edge</span>
+          <div className="text-3xl font-black text-football-green">+{formatPercent(avgEdge)}</div>
         </div>
         <div className="oracle-glass p-6 rounded-2xl flex flex-col justify-between h-32 border-emerald-500/20">
           <span className="text-[10px] font-mono text-gray-500 uppercase">Aggregate Kelly Limit</span>
@@ -106,7 +106,7 @@ export const ComparisonGrid: React.FC<ComparisonGridProps> = ({
               <tr key={i} className="hover:bg-white/5 transition-all group">
                 <td className="py-6 px-6">
                   <div className="flex flex-col">
-                    <span className="text-sm font-black text-white italic group-hover:text-violet-400 transition-colors uppercase">
+                    <span className="text-sm font-black text-white italic group-hover:text-football-green transition-colors uppercase">
                        {match.fixture.home} <span className="text-[10px] font-mono text-gray-600 not-italic mx-1">VS</span> {match.fixture.away}
                     </span>
                     <span className="text-[9px] font-mono text-gray-500 uppercase mt-1">{match.fixture.league}</span>
@@ -114,7 +114,7 @@ export const ComparisonGrid: React.FC<ComparisonGridProps> = ({
                 </td>
                 <td className="py-6 px-6 max-w-[200px]">
                    <div className="flex h-3 gap-1 rounded overflow-hidden">
-                      <div style={{ width: `${match.orchestration.final_probabilities.home * 100}%` }} className="bg-violet-600" />
+                      <div style={{ width: `${match.orchestration.final_probabilities.home * 100}%` }} className="bg-football-green" />
                       <div style={{ width: `${match.orchestration.final_probabilities.draw * 100}%` }} className="bg-gray-800" />
                       <div style={{ width: `${match.orchestration.final_probabilities.away * 100}%` }} className="bg-rose-600" />
                    </div>
@@ -148,8 +148,8 @@ export const ComparisonGrid: React.FC<ComparisonGridProps> = ({
                 <td className="py-6 px-6 text-right">
                   <div className="flex items-center justify-end gap-3">
                     <span className="text-xs font-bold text-white uppercase italic">{match.orchestration.edge.outcome}</span>
-                    <div className="p-2 bg-violet-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <ChevronRight className="w-4 h-4 text-white" />
+                    <div className="p-2 bg-football-green rounded-lg group-hover:scale-110 transition-transform">
+                      <ChevronRight className="w-4 h-4 text-black" />
                     </div>
                   </div>
                 </td>

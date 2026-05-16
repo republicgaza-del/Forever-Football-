@@ -72,7 +72,7 @@ export function ScrapperStatus({ label }: any) {
 
   const statusColors = {
     pending: 'text-gray-600 border-gray-800',
-    syncing: 'text-cyan-400 border-cyan-500/30 shadow-[0_0_10px_rgba(34,211,238,0.1)]',
+    syncing: 'text-football-green border-football-green/30 shadow-[0_0_10px_rgba(34,197,94,0.1)]',
     completed: 'text-emerald-500 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.1)]',
     blocked: 'text-rose-500 border-rose-500/30 shadow-[0_0_10px_rgba(244,63,94,0.1)]',
     offline: 'text-gray-500 border-gray-800/50'
@@ -89,7 +89,7 @@ export function ScrapperStatus({ label }: any) {
           initial={{ x: '-100%' }}
           animate={{ x: '200%' }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/5 to-transparent skew-x-12 pointer-events-none"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-football-green/10 to-transparent skew-x-12 pointer-events-none"
         />
       )}
 
@@ -97,12 +97,12 @@ export function ScrapperStatus({ label }: any) {
         <div className="flex items-center gap-2">
           <div className="relative">
              {status === 'syncing' && (
-               <div className="absolute inset-0 rounded-full bg-cyan-400/20 animate-ping" />
+               <div className="absolute inset-0 rounded-full bg-football-green/20 animate-ping" />
              )}
              <div className={cn(
                "w-1.5 h-1.5 rounded-full",
                status === 'pending' ? 'bg-gray-700' :
-               status === 'syncing' ? 'bg-cyan-500' :
+               status === 'syncing' ? 'bg-football-green' :
                status === 'completed' ? 'bg-emerald-500' :
                status === 'blocked' ? 'bg-rose-500' : 'bg-gray-500'
              )} />
@@ -139,7 +139,7 @@ export function ScrapperStatus({ label }: any) {
             className={cn(
               "h-full rounded-full transition-colors duration-500",
               status === 'blocked' ? 'bg-rose-500' : 
-              status === 'completed' ? 'bg-emerald-500' : 'bg-cyan-500'
+              status === 'completed' ? 'bg-emerald-500' : 'bg-football-green'
             )}
           />
         </div>

@@ -1,18 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-oracle-bg: #030712;
-  --color-oracle-grid: #111827;
-  --color-qpe-primary: #f59e0b;
-  --color-qpe-glow: rgba(245, 158, 11, 0.15);
-  --color-xse-primary: #06b6d4;
-  --color-xse-glow: rgba(6, 182, 212, 0.15);
-  --color-ccr-primary: #8b5cf6;
+  --color-pitch-950: #020617;
+  --color-pitch-900: #0f172a;
+  --color-football-green: #22c55e;
+  --color-football-gold: #fbbf24;
+  --color-stadium-blue: #3b82f6;
+  
+  --color-oracle-bg: #020617;
+  --color-oracle-grid: #1e293b;
+  --color-qpe-primary: #fbbf24;
+  --color-qpe-glow: rgba(251, 191, 36, 0.1);
+  --color-xse-primary: #22c55e;
+  --color-xse-glow: rgba(34, 197, 94, 0.1);
+  --color-ccr-primary: #3b82f6;
+  
   --animate-breath: breath 3s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-stadium-sweep: stadium-sweep 15s linear infinite;
 }
 
 @keyframes breath {
@@ -20,32 +29,53 @@
   50% { transform: scale(1.02); }
 }
 
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes stadium-sweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
 @layer base {
   body {
-    @apply bg-oracle-bg text-gray-200 font-sans selection:bg-cyan-500/30;
+    @apply bg-oracle-bg text-slate-200 font-sans selection:bg-football-green/30;
     background-image: 
+      radial-gradient(circle at 50% -20%, rgba(34, 197, 94, 0.15), transparent 70%),
       linear-gradient(to right, var(--color-oracle-grid) 1px, transparent 1px),
       linear-gradient(to bottom, var(--color-oracle-grid) 1px, transparent 1px);
-    background-size: 40px 40px;
+    background-size: 100% 100%, 60px 60px, 60px 60px;
+    background-attachment: fixed;
   }
 }
 
 .oracle-glass {
-  @apply bg-gray-900/40 backdrop-blur-md border border-gray-800/50;
+  @apply bg-slate-900/60 backdrop-blur-xl border border-white/[0.05] shadow-2xl;
+}
+
+.glass-pill {
+  @apply bg-white/[0.03] backdrop-blur-sm border border-white/[0.08] shadow-inner;
 }
 
 .glow-qpe {
-  box-shadow: 0 0 20px var(--color-qpe-glow);
+  box-shadow: 0 0 40px var(--color-qpe-glow);
 }
 
 .glow-xse {
-  box-shadow: 0 0 20px var(--color-xse-glow);
+  box-shadow: 0 0 40px var(--color-xse-glow);
 }
 
-.glow-red {
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+.glow-football {
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.2);
 }
 
 .bar-animation {
-  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.football-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.05;
 }
